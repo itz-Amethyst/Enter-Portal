@@ -4,6 +4,8 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
+import firefliesVertexShader from './shaders/fireflies/vertex.glsl'
+import firefliesFragmentShader from './shaders/fireflies/fragment.glsl'
 
 /**
  * Base
@@ -84,16 +86,19 @@ const firefliesCount = 30
 const positionArray = new Float32Array(firefliesCount * 3)
 
 for (let i = 0; i < firefliesCount; i++){
-    positionArray[i * 3 + 0] = Math.random() * 4
-    positionArray[i * 3 + 1] = Math.random() * 4
-    positionArray[i * 3 + 2] = Math.random() * 4
+    positionArray[i * 3 + 0] = (Math.random() * - 0.5) * 4
+    positionArray[i * 3 + 1] = Math.random() * 1.5
+    positionArray[i * 3 + 2] = (Math.random() * - 0.5) * 4
 }
 firefliesGeometry.setAttribute('position' , new THREE.BufferAttribute(positionArray , 3))
 
 // Material
-const firefliesMaterial = new THREE.PointsMaterial({
-    size: 0.1 ,
-    sizeAttenuation: true
+const firefliesMaterial = new THREE.ShaderMaterial({
+    uniforms:{
+        uPixelRatio: {value: Math.min(window.devicePixelRatio , 2)}
+    },
+    vertexShader: firefliesVertexShader,
+    fragmentShader: firefliesFragmentShader
 })
 
 // Points
