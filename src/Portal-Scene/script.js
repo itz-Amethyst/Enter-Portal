@@ -9,6 +9,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
  * Base
  */
 // Debug
+const debugObject = {}
 const gui = new dat.GUI({
     width: 400
 })
@@ -57,7 +58,6 @@ const bakedMaterial = new THREE.MeshBasicMaterial({map: bakedTexture})
  * Model
  */
 
-
 gltfLoader.load(
     '/models/Portal/portal.glb',
     (gltf) =>{
@@ -75,6 +75,30 @@ gltfLoader.load(
         scene.add(gltf.scene)
     }
 )
+
+/**
+ * Fireflies
+ */
+const firefliesGeometry = new THREE.BufferGeometry()
+const firefliesCount = 30
+const positionArray = new Float32Array(firefliesCount * 3)
+
+for (let i = 0; i < firefliesCount; i++){
+    positionArray[i * 3 + 0] = Math.random() * 4
+    positionArray[i * 3 + 1] = Math.random() * 4
+    positionArray[i * 3 + 2] = Math.random() * 4
+}
+firefliesGeometry.setAttribute('position' , new THREE.BufferAttribute(positionArray , 3))
+
+// Material
+const firefliesMaterial = new THREE.PointsMaterial({
+    size: 0.1 ,
+    sizeAttenuation: true
+})
+
+// Points
+const fireflies = new THREE.Points(firefliesGeometry , firefliesMaterial)
+scene.add(fireflies)
 
 /**
  * Sizes
@@ -124,7 +148,13 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-renderer.setClearColor('#262837')
+renderer.setClearColor(debugObject.clearColor)
+
+// Clear color
+debugObject.clearColor = '#1f2023'
+gui.addColor(debugObject , 'clearColor').onChange(() => {
+    renderer.setClearColor(debugObject.clearColor)
+})
 
 /**
  * Animate
