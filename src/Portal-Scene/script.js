@@ -55,7 +55,9 @@ const poleLightMaterial = new THREE.MeshBasicMaterial({color: '#2fe0d8'}) //0xff
 const portalLightMaterial = new THREE.ShaderMaterial({
     side: THREE.DoubleSide,
     uniforms:{
-        uTime: {value: 0}
+        uTime: {value: 0},
+        uColorStart: {value: new THREE.Color(0xff0000)},
+        uColorEnd: {value: new THREE.Color(0x0000ff)}
     },
     vertexShader: portalVertexShader,
     fragmentShader: portalFragmentShader
