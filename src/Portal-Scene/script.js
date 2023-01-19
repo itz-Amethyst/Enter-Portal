@@ -1,15 +1,17 @@
-import '/css/style.css'
+import './style.css'
+import * as dat from 'lil-gui'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import * as dat from 'lil-gui'
-// import vertexShader from './shaders/vertex.glsl'
-// import fragmentShader from './shaders/fragment.glsl'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 
 /**
  * Base
  */
 // Debug
-const gui = new dat.GUI()
+const gui = new dat.GUI({
+    width: 400
+})
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
@@ -18,116 +20,61 @@ const canvas = document.querySelector('canvas.webgl')
 const scene = new THREE.Scene()
 
 /**
- * Galaxy
+ * Loaders
  */
-const parameters = {}
-parameters.count = 200000
-parameters.size = 0.005
-parameters.radius = 1.5
-parameters.branches = 4
-parameters.spin = 1
-parameters.randomness = 0.424
-parameters.randomnessPower = 5.229
-parameters.insideColor = '#1546c1'
-parameters.outsideColor = '#804794'
+// Texture loader
+const textureLoader = new THREE.TextureLoader()
 
-let geometry = null
-let material = null
-let points = null
+// Draco loader
+const dracoLoader = new DRACOLoader()
+dracoLoader.setDecoderPath('draco/')
 
-const generateGalaxy = () =>
-{
-    if(points !== null)
-    {
-        geometry.dispose()
-        material.dispose()
-        scene.remove(points)
+// GLTF loader
+const gltfLoader = new GLTFLoader()
+gltfLoader.setDRACOLoader(dracoLoader)
+
+/**
+ * Textures
+ */
+
+// Baked Material
+const bakedTexture = textureLoader.load('/models/Portal/baked.jpg')
+bakedTexture.flipY = false
+bakedTexture.outputEncoding = THREE.sRGBEncoding
+
+// Pole light material 
+const poleLightMaterial = new THREE.MeshBasicMaterial({color: '#2fe0d8'}) //0xffffe5
+
+// Portal light material
+const portalLightMaterial = new THREE.MeshBasicMaterial({color: '#c067e0' , side: THREE.DoubleSide}) // side: THREE.DoubleSide :/ 1 sat ba cube sakhtam bad tahesh fahmidam injori plane mishe double side kard
+
+/**
+ * Material
+ */
+const bakedMaterial = new THREE.MeshBasicMaterial({map: bakedTexture})
+
+/**
+ * Model
+ */
+
+
+gltfLoader.load(
+    '/models/Portal/portal.glb',
+    (gltf) =>{
+
+        const bakedMesh = gltf.scene.children.find((child) => child.name === 'baked')
+        const portalLightMesh = gltf.scene.children.find((child) => child.name === 'portalLight')
+        const poleLightAMesh = gltf.scene.children.find((child) => child.name === 'poleLightA')
+        const poleLightBMesh = gltf.scene.children.find((child) => child.name === 'poleLightB')
+
+        bakedMesh.material = bakedMaterial
+        portalLightMesh.material = portalLightMaterial
+        poleLightAMesh.material = poleLightMaterial
+        poleLightBMesh.material = poleLightMaterial
+
+        scene.add(gltf.scene)
     }
-
-    /**
-     * Geometry
-     */
-    geometry = new THREE.BufferGeometry()
-
-    const positions = new Float32Array(parameters.count * 3)
-    const colors = new Float32Array(parameters.count * 3)
-    const scales = new Float32Array(parameters.count * 1)
-
-    const randomness = new Float32Array(parameters.count * 3)
-
-    const insideColor = new THREE.Color(parameters.insideColor)
-    const outsideColor = new THREE.Color(parameters.outsideColor)
-
-    for(let i = 0; i < parameters.count; i++)
-    {
-        const i3 = i * 3
-
-        // Position
-        const radius = Math.random() * parameters.radius
-
-        const branchAngle = (i % parameters.branches) / parameters.branches * Math.PI * 2
-
-        // Randomness
-        const randomX = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : - 1) * parameters.randomness * radius
-        const randomY = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : - 1) * parameters.randomness * radius
-        const randomZ = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : - 1) * parameters.randomness * radius
-
-        positions[i3    ] = Math.cos(branchAngle) * radius
-        positions[i3 + 1] = 0.0
-        positions[i3 + 2] = Math.sin(branchAngle) * radius
-
-        randomness[i3 + 0] = randomX
-        randomness[i3 + 1] = randomY
-        randomness[i3 + 2] = randomZ
-
-        // Color
-        const mixedColor = insideColor.clone()
-        mixedColor.lerp(outsideColor, radius / parameters.radius)
-
-        colors[i3    ] = mixedColor.r
-        colors[i3 + 1] = mixedColor.g
-        colors[i3 + 2] = mixedColor.b
-
-        // Sccale
-        scales[i] = Math.random()
-    }
-
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
-    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
-    geometry.setAttribute('ascale', new THREE.BufferAttribute(colors, 1))
-    geometry.setAttribute('aRandomness', new THREE.BufferAttribute(randomness, 3))
-
-    /**
-     * Material
-     */
-    material = new THREE.ShaderMaterial({
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader,
-
-        uniforms: {
-            uSize: {value: 10 * renderer.getPixelRatio() },
-            uTime: {value : 0}
-        },
-
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-        vertexColors: true
-    })
-
-    /**
-     * Points
-     */
-    points = new THREE.Points(geometry, material)
-    scene.add(points)
-}
-
-gui.add(parameters, 'count').min(100).max(1000000).step(100).onFinishChange(generateGalaxy)
-gui.add(parameters, 'radius').min(0.01).max(20).step(0.01).onFinishChange(generateGalaxy)
-gui.add(parameters, 'branches').min(2).max(20).step(1).onFinishChange(generateGalaxy)
-gui.add(parameters, 'randomness').min(0).max(2).step(0.001).onFinishChange(generateGalaxy)
-gui.add(parameters, 'randomnessPower').min(1).max(10).step(0.001).onFinishChange(generateGalaxy)
-gui.addColor(parameters, 'insideColor').onFinishChange(generateGalaxy)
-gui.addColor(parameters, 'outsideColor').onFinishChange(generateGalaxy)
+)
 
 /**
  * Sizes
@@ -156,10 +103,10 @@ window.addEventListener('resize', () =>
  * Camera
  */
 // Base camera
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.x = 1
-camera.position.y = 1
-camera.position.z = 0.4
+const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height, 0.1, 100)
+camera.position.x = 4
+camera.position.y = 2
+camera.position.z = 4
 scene.add(camera)
 
 // Controls
@@ -170,13 +117,11 @@ controls.enableDamping = true
  * Renderer
  */
 const renderer = new THREE.WebGLRenderer({
-    canvas: canvas
+    canvas: canvas,
+    antialias: true
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-
-// Generate Galaxy
-generateGalaxy()
 
 /**
  * Animate
@@ -186,9 +131,6 @@ const clock = new THREE.Clock()
 const tick = () =>
 {
     const elapsedTime = clock.getElapsedTime()
-
-    // Update Material
-    material.uniforms.uTime.value = elapsedTime
 
     // Update controls
     controls.update()
