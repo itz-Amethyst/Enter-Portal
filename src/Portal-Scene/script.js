@@ -7,7 +7,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import firefliesVertexShader from './shaders/fireflies/vertex.glsl'
 import firefliesFragmentShader from './shaders/fireflies/fragment.glsl'
 import portalVertexShader from './shaders/portal/vertex.glsl'
-import portalFragmentShader from './shaders/fireflies/fragment.glsl'
+import portalFragmentShader from './shaders/portal/fragment.glsl'
 
 
 /**
@@ -54,6 +54,9 @@ const poleLightMaterial = new THREE.MeshBasicMaterial({color: '#2fe0d8'}) //0xff
 // Portal light material
 const portalLightMaterial = new THREE.ShaderMaterial({
     side: THREE.DoubleSide,
+    uniforms:{
+        uTime: {value: 0}
+    },
     vertexShader: portalVertexShader,
     fragmentShader: portalFragmentShader
 }) 
@@ -194,6 +197,7 @@ const tick = () =>
 
     // Update materials
     firefliesMaterial.uniforms.uTime.value = elapsedTime
+    portalLightMaterial.uniforms.uTime.value = elapsedTime
 
     // Update controls
     controls.update()
