@@ -52,16 +52,27 @@ bakedTexture.outputEncoding = THREE.sRGBEncoding
 const poleLightMaterial = new THREE.MeshBasicMaterial({color: '#2fe0d8'}) //0xffffe5
 
 // Portal light material
+debugObject.portalColorStart = '#ff0000'
+debugObject.portalColorEnd = '#0000ff'
+
+gui.addColor(debugObject, 'portalColorStart').onChange(() =>{
+    portalLightMaterial.uniforms.uColorStart.value.set(debugObject.portalColorStart)
+})
+gui.addColor(debugObject, 'portalColorEnd').onChange(() =>{
+    portalLightMaterial.uniforms.uColorEnd.value.set(debugObject.portalColorEnd)
+})
+
 const portalLightMaterial = new THREE.ShaderMaterial({
     side: THREE.DoubleSide,
     uniforms:{
         uTime: {value: 0},
-        uColorStart: {value: new THREE.Color(0xff0000)},
-        uColorEnd: {value: new THREE.Color(0x0000ff)}
+        uColorStart: {value: new THREE.Color(debugObject.portalColorStart)},
+        uColorEnd: {value: new THREE.Color(debugObject.portalColorEnd)}
     },
     vertexShader: portalVertexShader,
     fragmentShader: portalFragmentShader
 }) 
+
 // side: THREE.DoubleSide :/ 1 sat ba cube sakhtam bad tahesh fahmidam injori plane mishe double side kard
 
 /**
