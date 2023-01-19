@@ -6,6 +6,9 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import firefliesVertexShader from './shaders/fireflies/vertex.glsl'
 import firefliesFragmentShader from './shaders/fireflies/fragment.glsl'
+import portalVertexShader from './shaders/portal/vertex.glsl'
+import portalFragmentShader from './shaders/fireflies/fragment.glsl'
+
 
 /**
  * Base
@@ -49,7 +52,12 @@ bakedTexture.outputEncoding = THREE.sRGBEncoding
 const poleLightMaterial = new THREE.MeshBasicMaterial({color: '#2fe0d8'}) //0xffffe5
 
 // Portal light material
-const portalLightMaterial = new THREE.MeshBasicMaterial({color: '#c067e0' , side: THREE.DoubleSide}) // side: THREE.DoubleSide :/ 1 sat ba cube sakhtam bad tahesh fahmidam injori plane mishe double side kard
+const portalLightMaterial = new THREE.ShaderMaterial({
+    side: THREE.DoubleSide,
+    vertexShader: portalVertexShader,
+    fragmentShader: portalFragmentShader
+}) 
+// side: THREE.DoubleSide :/ 1 sat ba cube sakhtam bad tahesh fahmidam injori plane mishe double side kard
 
 /**
  * Material
