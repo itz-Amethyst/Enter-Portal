@@ -52,8 +52,8 @@ bakedTexture.outputEncoding = THREE.sRGBEncoding
 const poleLightMaterial = new THREE.MeshBasicMaterial({color: '#2fe0d8'}) //0xffffe5
 
 // Portal light material
-debugObject.portalColorStart = '#ff0000'
-debugObject.portalColorEnd = '#0000ff'
+debugObject.portalColorStart = '#22bfbc'
+debugObject.portalColorEnd = '#dd0bf9'
 
 gui.addColor(debugObject, 'portalColorStart').onChange(() =>{
     portalLightMaterial.uniforms.uColorStart.value.set(debugObject.portalColorStart)
