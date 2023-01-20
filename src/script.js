@@ -9,6 +9,7 @@ import portalGreenShader from './shaders/Portal-Green/fragment.glsl'
 import artShader from './shaders/Art/fragment.glsl'
 import matrixShader from './shaders/Matrix/fragment.glsl'
 import windowTerminalShader from './shaders/Window-Terminal/fragment.glsl'
+import phantomStarShader from './shaders/Phantom-Star/fragment.glsl'
 
 
 /**
@@ -48,7 +49,7 @@ const portalMainMaterial = new THREE.ShaderMaterial({
         // iChannel0: { value: texture },
     },
     vertexShader: mainVertexShader,
-    fragmentShader: matrixShader
+    fragmentShader: phantomStarShader
 }) 
 
 const portalTopMaterial = new THREE.ShaderMaterial({
@@ -68,7 +69,7 @@ const portalTopMaterial = new THREE.ShaderMaterial({
  */
 let mixer = null
 gltfLoader.load(
-    'models/Japan-Shrine/untitled1.glb',
+    'models/Japan-Shrine/shrine.glb',
     (gltf) =>{
         scene.add(gltf.scene)
         mixer = new THREE.AnimationMixer(gltf.scene)
