@@ -5,16 +5,15 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import mainVertexShader from './shaders/vertex.glsl'
-import portalGreenVertexShader from './shaders/Portal-Green/vertex.glsl'
+import portalGreenShader from './shaders/Portal-Green/fragment.glsl'
+import artShader from './shaders/Art/fragment.glsl'
+import matrixShader from './shaders/Matrix/fragment.glsl'
 
-import portalPowerFragmentShader from './shaders/power/fragment.glsl'
-import portalPowerVertexShader from './shaders/power/vertex.glsl'
 
 /**
  * Base
  */
 // Debug
-const debugObject = {}
 const gui = new dat.GUI({
     width: 400
 })
@@ -28,8 +27,6 @@ const scene = new THREE.Scene()
 /**
  * Loaders
  */
-// Texture loader
-const textureLoader = new THREE.TextureLoader()
 
 // Draco loader
 const dracoLoader = new DRACOLoader()
@@ -42,25 +39,15 @@ gltfLoader.setDRACOLoader(dracoLoader)
 /**
  * Portal material
  */
-debugObject.portalColorStart = '#22bfbc'
-debugObject.portalColorEnd = '#dd0bf9'
-
-gui.addColor(debugObject, 'portalColorStart').onChange(() =>{
-    portalLightMaterial.uniforms.uColorStart.value.set(debugObject.portalColorStart)
-})
-gui.addColor(debugObject, 'portalColorEnd').onChange(() =>{
-    portalLightMaterial.uniforms.uColorEnd.value.set(debugObject.portalColorEnd)
-})
-
 const portalMainMaterial = new THREE.ShaderMaterial({
     side: THREE.DoubleSide,
     uniforms:{
-        uTime: {value: 0},
-        uColorStart: {value: new THREE.Color(debugObject.portalColorStart)},
-        uColorEnd: {value: new THREE.Color(debugObject.portalColorEnd)}
+        iTime: { value: 0 },
+        iResolution:  { value: new THREE.Vector3(window.innerWidth, window.innerHeight , 1) },
+        // iChannel0: { value: texture },
     },
-    vertexShader: portalVertexShader,
-    fragmentShader: portalFragmentShader
+    vertexShader: mainVertexShader,
+    fragmentShader: matrixShader
 }) 
 
 const portalTopMaterial = new THREE.ShaderMaterial({
@@ -70,8 +57,8 @@ const portalTopMaterial = new THREE.ShaderMaterial({
         iResolution:  { value: new THREE.Vector3(window.innerWidth, window.innerHeight , 1) },
         // iChannel0: { value: texture },
     },
-    vertexShader: portalPowerVertexShader,
-    fragmentShader: portalPowerFragmentShader
+    vertexShader: mainVertexShader,
+    fragmentShader: artShader
 }) 
 
 
@@ -89,12 +76,8 @@ gltfLoader.load(
         const portalMainMesh = gltf.scene.children.find((child) => child.name === 'Portal')
         const portalTopMainMesh = gltf.scene.children.find((child) => child.name === 'Portal-Top')
 
-        portalMainMesh.material = portalTopMaterial
+        portalMainMesh.material = portalMainMaterial
         portalTopMainMesh.material = portalTopMaterial
-
-        // portalMainMesh.material = new THREE.MeshBasicMaterial({color: 'red'})
-        // portalTopMainMesh.material = new THREE.MeshBasicMaterial({color: 'cyan'})
-        console.log(gltf.scene);
 
         action.play()
     }
@@ -163,6 +146,7 @@ const tick = () =>
 
     //Update time
     portalTopMaterial.uniforms.iTime.value = elapsedTime
+    portalMainMaterial.uniforms.iTime.value = elapsedTime
     // portalTopMaterial.uniforms.iResolution.value.set(sizes.width, sizes.height, 1)
 
     // Update Mixer
