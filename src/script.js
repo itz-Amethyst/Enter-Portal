@@ -4,11 +4,17 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
+import mainVertexShader from './shaders/vertex.glsl'
+import portalGreenVertexShader from './shaders/Portal-Green/vertex.glsl'
+
+import portalPowerFragmentShader from './shaders/power/fragment.glsl'
+import portalPowerVertexShader from './shaders/power/vertex.glsl'
 
 /**
  * Base
  */
 // Debug
+const debugObject = {}
 const gui = new dat.GUI({
     width: 400
 })
@@ -33,13 +39,48 @@ dracoLoader.setDecoderPath('draco/')
 const gltfLoader = new GLTFLoader()
 gltfLoader.setDRACOLoader(dracoLoader)
 
+/**
+ * Portal material
+ */
+debugObject.portalColorStart = '#22bfbc'
+debugObject.portalColorEnd = '#dd0bf9'
+
+gui.addColor(debugObject, 'portalColorStart').onChange(() =>{
+    portalLightMaterial.uniforms.uColorStart.value.set(debugObject.portalColorStart)
+})
+gui.addColor(debugObject, 'portalColorEnd').onChange(() =>{
+    portalLightMaterial.uniforms.uColorEnd.value.set(debugObject.portalColorEnd)
+})
+
+const portalMainMaterial = new THREE.ShaderMaterial({
+    side: THREE.DoubleSide,
+    uniforms:{
+        uTime: {value: 0},
+        uColorStart: {value: new THREE.Color(debugObject.portalColorStart)},
+        uColorEnd: {value: new THREE.Color(debugObject.portalColorEnd)}
+    },
+    vertexShader: portalVertexShader,
+    fragmentShader: portalFragmentShader
+}) 
+
+const portalTopMaterial = new THREE.ShaderMaterial({
+    side: THREE.DoubleSide,
+    uniforms:{
+        iTime: { value: 0 },
+        iResolution:  { value: new THREE.Vector3(window.innerWidth, window.innerHeight , 1) },
+        // iChannel0: { value: texture },
+    },
+    vertexShader: portalPowerVertexShader,
+    fragmentShader: portalPowerFragmentShader
+}) 
+
 
 /**
  * Model
  */
 let mixer = null
 gltfLoader.load(
-    'models/Japan-Shrine/shrine.glb',
+    'models/Japan-Shrine/untitled1.glb',
     (gltf) =>{
         scene.add(gltf.scene)
         mixer = new THREE.AnimationMixer(gltf.scene)
@@ -48,8 +89,12 @@ gltfLoader.load(
         const portalMainMesh = gltf.scene.children.find((child) => child.name === 'Portal')
         const portalTopMainMesh = gltf.scene.children.find((child) => child.name === 'Portal-Top')
 
-        portalMainMesh.material = new THREE.MeshBasicMaterial({color: 'red'})
-        portalTopMainMesh.material = new THREE.MeshBasicMaterial({color: 'cyan'})
+        portalMainMesh.material = portalTopMaterial
+        portalTopMainMesh.material = portalTopMaterial
+
+        // portalMainMesh.material = new THREE.MeshBasicMaterial({color: 'red'})
+        // portalTopMainMesh.material = new THREE.MeshBasicMaterial({color: 'cyan'})
+        console.log(gltf.scene);
 
         action.play()
     }
@@ -115,6 +160,10 @@ const tick = () =>
     const elapsedTime = clock.getElapsedTime()
     const deltaTime = elapsedTime - previousTime
     previousTime = elapsedTime
+
+    //Update time
+    portalTopMaterial.uniforms.iTime.value = elapsedTime
+    // portalTopMaterial.uniforms.iResolution.value.set(sizes.width, sizes.height, 1)
 
     // Update Mixer
     if(mixer !== null){
