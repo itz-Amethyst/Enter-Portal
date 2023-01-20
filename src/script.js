@@ -8,6 +8,7 @@ import mainVertexShader from './shaders/vertex.glsl'
 import portalGreenShader from './shaders/Portal-Green/fragment.glsl'
 import artShader from './shaders/Art/fragment.glsl'
 import matrixShader from './shaders/Matrix/fragment.glsl'
+import windowTerminalShader from './shaders/Window-Terminal/fragment.glsl'
 
 
 /**
