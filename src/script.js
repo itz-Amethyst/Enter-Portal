@@ -44,7 +44,7 @@ const portalMainMaterial = new THREE.ShaderMaterial({
         // iChannel0: { value: texture },
     },
     vertexShader: mainVertexShader,
-    fragmentShader: phantomStarShader
+    fragmentShader: matrixShader
 }) 
 
 const portalTopMaterial = new THREE.ShaderMaterial({
@@ -55,7 +55,7 @@ const portalTopMaterial = new THREE.ShaderMaterial({
         // iChannel0: { value: texture },
     },
     vertexShader: mainVertexShader,
-    fragmentShader: artShader
+    fragmentShader: phantomStarShader
 }) 
 
 
