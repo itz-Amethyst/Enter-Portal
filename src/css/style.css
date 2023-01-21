@@ -44,6 +44,7 @@ a:hover {
 	text-transform: uppercase;
 	font-weight: bold;
     font-family: tenon, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif;
+    opacity: 0;
 }
 
 .frame__demos a:not(:last-child) {
@@ -67,7 +68,6 @@ a:hover {
     background-color: #ffffff;
     transform: scaleX(0.04);
     transform-origin: top center;
-    transition: transform 2.5s;
     will-change: transform;
 }
 
@@ -75,4 +75,8 @@ a:hover {
     width: 0;
     transform-origin: top left;
     transition: transform 0.5s ease-in-out;
+}
+
+.visible{
+    opacity: 1;
 }
