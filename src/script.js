@@ -15,8 +15,9 @@ import { gsap } from 'gsap'
 /**
  * Base
  */
-
+let sceneReady = false
 const loadingBarElement = document.querySelector('.loading-bar')
+const frameElement = document.querySelector('.frame')
 const loadingManager = new THREE.LoadingManager(
     // Loaded
     ()=>{
@@ -24,6 +25,10 @@ const loadingManager = new THREE.LoadingManager(
             gsap.to(overlayMaterial.uniforms.uAlpha , {duration: 3 , value: 0})
             loadingBarElement.classList.add('ended')
         } , 500) 
+
+        window.setTimeout(() =>{
+            sceneReady = true
+        } , 1000)
     },
     // Progress
     (itemUrl , itemsLoaded , itemsTotal)=>{
@@ -195,6 +200,11 @@ const tick = () =>
         mixer.update(deltaTime)
     }
 
+    // Frame
+    if(sceneReady){
+        frameElement.classList.add('visible')
+    }
+    
     // Update controls
     controls.update()
 

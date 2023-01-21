@@ -17,7 +17,9 @@ import { gsap } from 'gsap'
  */
 
 // Loading
+let sceneReady = false
 const loadingBarElement = document.querySelector('.loading-bar')
+const frameElement = document.querySelector('.frame')
 const loadingManager = new THREE.LoadingManager(
     // Loaded
     ()=>{
@@ -25,6 +27,10 @@ const loadingManager = new THREE.LoadingManager(
             gsap.to(overlayMaterial.uniforms.uAlpha , {duration: 3 , value: 0})
             loadingBarElement.classList.add('ended')
         } , 500) 
+
+        window.setTimeout(() =>{
+            sceneReady = true
+        } , 1000)
     },
     // Progress
     (itemUrl , itemsLoaded , itemsTotal)=>{
@@ -37,8 +43,8 @@ const loadingManager = new THREE.LoadingManager(
 // Debug
 const debugObject = {}
 const gui = new dat.GUI({
-    width: 400
-})
+    width: 400,
+}).close()
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
@@ -257,6 +263,11 @@ const tick = () =>
     // Update materials
     firefliesMaterial.uniforms.uTime.value = elapsedTime
     portalLightMaterial.uniforms.uTime.value = elapsedTime
+
+    // Frame
+    if(sceneReady){
+        frameElement.classList.add('visible')
+    }
 
     // Update controls
     controls.update()
